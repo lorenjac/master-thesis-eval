@@ -1,98 +1,79 @@
 from os import walk
-import sys
+import argparse
 import re
 
-# path = 'log'
-path = sys.argv[1]
-# parameter = 'throughput'
-parameter = sys.argv[2]
+parser = argparse.ArgumentParser(description='Compute average values for a given parameter for all .log files in a given folder.')
+parser.add_argument('log_dir', metavar='LOG_DIR', help='path to a folder with .log files')
+parser.add_argument('param', metavar='PARAM', help='the parameter to be processed (e.g. throughput)')
+parser.add_argument('output_path', metavar='RESULT_FILE', help='the results will be stored in this file')
+
+args = parser.parse_args()
+log_dir = args.log_dir
+param = args.param
+output_path = args.output_path
+
+###############################################################################
+# GET LIST OF LOG FILES
+###############################################################################
 
 f = []
-for (dirpath, dirnames, filenames) in walk(path):
+for (dirpath, dirnames, filenames) in walk(log_dir):
     f.extend(filenames)
     break
 
 f = filter(lambda e: e.endswith('.log'), f)
 
-#######################################################################
-# AVERAGE
-#######################################################################
+###############################################################################
+# AGGREGATION OF PARAMETER VALUES FROM DIFFERENT FILES
+###############################################################################
 
 dataset = []
 for fileName in f:
-    print fileName
+    # print fileName
 
     # parse number of cores used for benchmark
     num_threads_parse = re.findall('(\d+)', fileName)
     if num_threads_parse:
         num_threads = int(num_threads_parse[0])
-        print 'num_threads =', num_threads
+        # print 'num_threads =', num_threads
 
     # read file
-    file = open(path + '/' + fileName, 'r')
+    file = open(log_dir + '/' + fileName, 'r')
     lines = file.readlines()
     file.close()
 
     # find and parse parameter value of interest
     values = []
     for line in lines:
-        value = re.findall(parameter + '=(\d*\.\d+|\d+).*', line)
+        value = re.findall(param + '=(\d*\.\d+|\d+).*', line)
         if value:
-            # print parameter, '=', value
-            # values.extend(value)
             values.append(float(value[0]))
-    print 'values =', values
+
+    # print 'values =', values
+
+    if not values:
+        print 'warning: no values for parameter', '<' + param + '>'
+        continue
 
     avg = sum(values) / len(values)
     dataset.append((num_threads, avg))
 
+###############################################################################
+# POST-PROCESSING
+###############################################################################
+
 dataset = sorted(dataset, key=lambda pair: pair[0])
-print dataset
 
-paramAvgFile = open(path + '/' + parameter + '_avg.csv', 'w')
+# print dataset
 
-# write header
-header = '' + str(dataset[0][0]) + 'T'
-for (num_threads, result) in dataset[1:]:
-    header += ';' + str(num_threads) + 'T'
-paramAvgFile.write(header)
-paramAvgFile.write('\n')
+###############################################################################
+# EXPORT
+###############################################################################
+
+result_file = open(output_path, 'w')
 
 # write values
-values = '' + str(dataset[0][1])
-for (num_threads, result) in dataset[1:]:
-    values += ';' + str(result)
-paramAvgFile.write(values)
+for (num_threads, result) in dataset:
+    result_file.write(str(num_threads) + ';' + str(result) + '\n')
 
-paramAvgFile.close()
-
-#######################################################################
-# IMPROVEMENT
-#######################################################################
-
-# compute improvements between thread counts
-impr = []
-base = dataset[0][1]
-for (num_threads, result) in dataset[1:]:
-    impr.append((num_threads, result / base))
-    # base = result
-
-print impr
-
-# create file to store improvements
-imprFile = open(path + '/' + parameter + '_imp.csv', 'w')
-
-# write header
-imprHeader = '' + str(impr[0][0]) + 'T'
-for (num_threads, result) in impr[1:]:
-    imprHeader += ';' + str(num_threads) + 'T'
-imprFile.write(imprHeader)
-imprFile.write('\n')
-
-# write values
-imprValues = '' + str(impr[0][1])
-for (num_threads, result) in impr[1:]:
-    imprValues += ';' + str(result)
-imprFile.write(imprValues)
-
-imprFile.close()
+result_file.close()

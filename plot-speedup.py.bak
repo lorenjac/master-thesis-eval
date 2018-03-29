@@ -9,19 +9,17 @@ echo_data_file=sys.argv[2]
 output_file=sys.argv[3]
 
 print 'midas data loc:', midas_data_file
-# print 'echo data loc:', echo_data_file
+print 'echo data loc:', echo_data_file
 
 ###############################################################################
 # IMPORT DATA
 ###############################################################################
 
-midas_data = numpy.genfromtxt(midas_data_file, delimiter=';')
-# print 'midas data:', midas_data
-midas_data_t = numpy.transpose(midas_data)
-# print 'midas data:', midas_data_t
+midas_data = numpy.genfromtxt(midas_data_file, delimiter=';', skip_header=1)
+print 'midas data:', midas_data
 
-# echo_data = numpy.genfromtxt(echo_data_file, delimiter=';')
-# print 'echo data:', echo_data
+echo_data = numpy.genfromtxt(echo_data_file, delimiter=';', skip_header=1)
+print 'echo data:', echo_data
 
 ###############################################################################
 # PLOT DATA
@@ -33,8 +31,7 @@ plt.style.use('ggplot')
 # AXES
 ###############################################################################
 
-# x = [1, 2, 4, 8, 16, 32]
-x = map (lambda e: int(e), midas_data_t[0])
+x = [2, 4, 8, 16, 32]
 
 #### x-axis
 # plt.xticks()
@@ -73,21 +70,21 @@ plt.ylabel('speedup')
 #     x
 #     +
 perfect_line, = plt.plot(x, x, 'k--', label='Ideal')
-midas_line, = plt.plot(x, midas_data_t[1], 'bo-', label='Midas')
-# echo_line, = plt.plot(x, echo_data, 'ro-', label='Echo')
+midas_line, = plt.plot(x, midas_data, 'bo-', label='Midas')
+echo_line, = plt.plot(x, echo_data, 'ro-', label='Echo')
 
 ###############################################################################
 # LEGEND
 ###############################################################################
 
 # plt.legend(handles=[midas_line, echo_line])
-plt.legend(handles=[midas_line, perfect_line])
+plt.legend(handles=[midas_line, echo_line, perfect_line])
 
 # plt.legend(handles=[midas_line, echo_line], loc='best')
-plt.legend(handles=[midas_line, perfect_line], loc='best')
+plt.legend(handles=[midas_line, echo_line, perfect_line], loc='best')
 
 # plt.legend(handles=[midas_line, echo_line], loc='lower right')
-plt.legend(handles=[midas_line, perfect_line], loc='upper right')
+plt.legend(handles=[midas_line, echo_line, perfect_line], loc='upper right')
 
 ###############################################################################
 # EXPORT
