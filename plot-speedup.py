@@ -2,26 +2,26 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import argparse
 import numpy
-import sys
 
-midas_data_file=sys.argv[1]
-echo_data_file=sys.argv[2]
-output_file=sys.argv[3]
+parser = argparse.ArgumentParser(description='Plot benchmark results.')
+parser.add_argument('files', metavar='FILES', type=str, nargs='+')
+parser.add_argument('-o', '--output', metavar='FILE', help='the results will be stored in this file')
 
-print 'midas data loc:', midas_data_file
-# print 'echo data loc:', echo_data_file
+args = parser.parse_args()
+output_path = args.output
+sample_paths = args.files
 
 ###############################################################################
 # IMPORT DATA
 ###############################################################################
 
-midas_data = numpy.genfromtxt(midas_data_file, delimiter=';')
-# print 'midas data:', midas_data
-midas_data_t = numpy.transpose(midas_data)
-# print 'midas data:', midas_data_t
-
-# echo_data = numpy.genfromtxt(echo_data_file, delimiter=';')
-# print 'echo data:', echo_data
+samples = []
+for path in sample_paths:
+    header = numpy.genfromtxt(path, delimiter=';', dtype=None, encoding=None, max_rows=2)
+    store_name = header[0][1]
+    sc_name = header[1][1]
+    data = numpy.transpose(numpy.genfromtxt(path, delimiter=';', skip_header=2))
+    samples.append((store_name, sc_name, data))
 
 ###############################################################################
 # PLOT DATA
@@ -34,7 +34,8 @@ plt.style.use('ggplot')
 ###############################################################################
 
 # x = [1, 2, 4, 8, 16, 32]
-x = map (lambda e: int(e), midas_data_t[0])
+sample_pts = samples[0][2][0]
+x = map (lambda e: int(e), sample_pts)
 
 #### x-axis
 # plt.xticks()
@@ -54,44 +55,39 @@ plt.ylabel('speedup')
 ###############################################################################
 #
 #   color:
-#     b   blue
-#     g   green
-#     r   red
-#     c   cyan
-#     m   magenta
-#     y   yellow
-#     k   black
-#     w   white
-#   line segments:
-#     -
-#     --
-#     -.
-#     :
-#     .
+#       b    g     r   c    m       y      k     w
+#       blue green red cyan magenta yellow black white
+#
+#   segments:
+#       -     --      -.      :       .
+#
 #   dots
-#     o
-#     x
-#     +
+#       o     x       +
+
 perfect_line, = plt.plot(x, x, 'k--', label='Ideal')
-midas_line, = plt.plot(x, midas_data_t[1], 'bo-', label='Midas')
-# echo_line, = plt.plot(x, echo_data, 'ro-', label='Echo')
+
+lines = [perfect_line]
+color_idx = 0
+colors = ['b',  'r',  'g',  'c',  'm',  'y']
+for (store, sc, values) in samples:
+    capitalized_name = store[0].upper() + store[1:]
+    line, = plt.plot(x, values[1], colors[color_idx] + 'o-', label=capitalized_name)
+    color_idx = (color_idx + 1) % len(colors)
+    lines.append(line)
 
 ###############################################################################
 # LEGEND
 ###############################################################################
 
-# plt.legend(handles=[midas_line, echo_line])
-plt.legend(handles=[midas_line, perfect_line])
-
-# plt.legend(handles=[midas_line, echo_line], loc='best')
-plt.legend(handles=[midas_line, perfect_line], loc='best')
-
-# plt.legend(handles=[midas_line, echo_line], loc='lower right')
-plt.legend(handles=[midas_line, perfect_line], loc='upper right')
+plt.legend(handles=lines, loc='best')
+# plt.legend(handles=lines, loc='upper right')
+# plt.legend(handles=lines)
 
 ###############################################################################
 # EXPORT
 ###############################################################################
 
-plt.savefig(output_file)
-plt.show()
+if output_path:
+    plt.savefig(output_path)
+else:
+    plt.show()

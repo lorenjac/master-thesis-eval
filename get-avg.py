@@ -16,6 +16,13 @@ output_path = args.output_path
 # GET LIST OF LOG FILES
 ###############################################################################
 
+matches = re.findall('.*-(\w*)-(\w*)', log_dir)
+if not matches or len(matches[0]) != 2:
+    raise Exception('invalid path (expected format is date-store-scenario)')
+
+store_name = matches[0][0]
+sc_name = matches[0][1]
+
 f = []
 for (dirpath, dirnames, filenames) in walk(log_dir):
     f.extend(filenames)
@@ -29,8 +36,6 @@ f = filter(lambda e: e.endswith('.log'), f)
 
 dataset = []
 for fileName in f:
-    # print fileName
-
     # parse number of cores used for benchmark
     num_threads_parse = re.findall('(\d+)', fileName)
     if num_threads_parse:
@@ -49,10 +54,8 @@ for fileName in f:
         if value:
             values.append(float(value[0]))
 
-    # print 'values =', values
-
     if not values:
-        print 'warning: no values for parameter', '<' + param + '>'
+        print 'warning: no values for parameter + <' + param + '>'
         continue
 
     avg = sum(values) / len(values)
@@ -64,13 +67,15 @@ for fileName in f:
 
 dataset = sorted(dataset, key=lambda pair: pair[0])
 
-# print dataset
-
 ###############################################################################
 # EXPORT
 ###############################################################################
 
 result_file = open(output_path, 'w')
+
+# write header
+result_file.write('store;' + store_name + '\n')
+result_file.write('sc;' + sc_name + '\n')
 
 # write values
 for (num_threads, result) in dataset:
