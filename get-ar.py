@@ -1,8 +1,9 @@
 import argparse
 import numpy
+import sys
 
-parser = argparse.ArgumentParser(description='Compute parallel efficiency values for a given data file in CSV format.')
-parser.add_argument('data_path', metavar='DATA_FILE', help='this file contains speedup data in CSV format')
+parser = argparse.ArgumentParser(description='Compute abort rates for a given data file in CSV format.')
+parser.add_argument('data_path', metavar='DATA_FILE', help='this file contains abort count data in CSV format')
 parser.add_argument('output_path', metavar='RESULT_FILE', help='the results will be stored in this file')
 
 args = parser.parse_args()
@@ -23,14 +24,16 @@ input_data = numpy.genfromtxt(data_path, delimiter=';', skip_header=2)
 # COMPUTE SPEED-UP
 ###############################################################################
 
+num_txs = 1000
+
 values = []
 baseline = input_data[0][1]
 for row in input_data:
     num_threads = row[0]
-    speedup = row[1]
-    efficiency = 100 * speedup / num_threads
-    # print speedup, '/', num_threads
-    values.append((int(num_threads), efficiency))
+    num_aborts = row[1]
+    abort_rate = 100 * num_aborts / num_txs
+    # print num_aborts, '/', num_txs, '=>', abort_rate
+    values.append((int(num_threads), abort_rate))
 
 ###############################################################################
 # EXPORT

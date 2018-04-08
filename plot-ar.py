@@ -37,6 +37,8 @@ plt.style.use('ggplot')
 sample_pts = samples[0][2][0]
 x = map (lambda e: int(e), sample_pts)
 
+ax = plt.gca()
+
 #### x-axis
 # plt.xticks()
 # plt.xticks([1,2,4,8,12,16,20,24,28,32])
@@ -44,7 +46,9 @@ x = map (lambda e: int(e), sample_pts)
 plt.xlabel('Number of Threads')
 
 #### y-axis
-plt.ylabel('Speedup Factor')
+plt.ylabel('Abort Rate in %')
+ax.set_ylim([0, 100])
+plt.yticks([10,20,30,40,50,60,70,80,90,100])
 # plt.yscale('log')
 
 # leave some space
@@ -64,9 +68,10 @@ plt.ylabel('Speedup Factor')
 #   dots
 #       o     x       +
 
-perfect_line, = plt.plot(x, x, 'k--', label='Ideal')
+# perfect_line, = plt.plot(x, map(lambda e: 100, x), 'k--', label='Ideal')
 
-lines = [perfect_line]
+# lines = [perfect_line]
+lines = []
 color_idx = 0
 colors = ['b',  'r',  'g',  'c',  'm',  'y']
 for (store, sc, values) in samples:

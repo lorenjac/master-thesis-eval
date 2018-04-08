@@ -41,10 +41,11 @@ x = map (lambda e: int(e), sample_pts)
 # plt.xticks()
 # plt.xticks([1,2,4,8,12,16,20,24,28,32])
 # plt.xscale('log', basex=2)
-plt.xlabel('threads')
+plt.xlabel('Number of Threads')
 
 #### y-axis
-plt.ylabel('parallel efficiency')
+plt.ylabel('Parallel Efficiency in %')
+plt.yticks([10,20,30,40,50,60,70,80,90,100])
 # plt.yscale('log')
 
 # leave some space
@@ -64,7 +65,7 @@ plt.ylabel('parallel efficiency')
 #   dots
 #       o     x       +
 
-perfect_line, = plt.plot(x, map(lambda e: 1.0, x), 'k--', label='Ideal')
+perfect_line, = plt.plot(x, map(lambda e: 100, x), 'k--', label='Ideal')
 
 lines = [perfect_line]
 color_idx = 0
