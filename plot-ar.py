@@ -76,7 +76,10 @@ color_idx = 0
 colors = ['b',  'r',  'g',  'c',  'm',  'y']
 for (store, sc, values) in samples:
     capitalized_name = store[0].upper() + store[1:]
-    line, = plt.plot(x, values[1], colors[color_idx] + 'o-', label=capitalized_name + ' (' + sc + ')')
+    if capitalized_name == 'Midas optimized':
+        capitalized_name = 'Midas*'
+    # line, = plt.plot(x, values[1], colors[color_idx] + 'o-', label=capitalized_name + ' (' + sc + ')')
+    line, = plt.plot(x, values[1], colors[color_idx] + 'o-', label=capitalized_name)
     color_idx = (color_idx + 1) % len(colors)
     lines.append(line)
 
