@@ -44,7 +44,7 @@ x = map (lambda e: int(e), sample_pts)
 plt.xlabel('threads')
 
 #### y-axis
-plt.ylabel('speedup')
+plt.ylabel('parallel efficiency')
 # plt.yscale('log')
 
 # leave some space
@@ -64,7 +64,7 @@ plt.ylabel('speedup')
 #   dots
 #       o     x       +
 
-perfect_line, = plt.plot(x, x, 'k--', label='Ideal')
+perfect_line, = plt.plot(x, map(lambda e: 1.0, x), 'k--', label='Ideal')
 
 lines = [perfect_line]
 color_idx = 0
