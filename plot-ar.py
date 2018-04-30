@@ -43,10 +43,10 @@ ax = plt.gca()
 # plt.xticks()
 # plt.xticks([1,2,4,8,12,16,20,24,28,32])
 # plt.xscale('log', basex=2)
-plt.xlabel('Number of Threads')
+plt.xlabel('Number of cores')
 
 #### y-axis
-plt.ylabel('Abort Rate in %')
+plt.ylabel('Abort rate in %')
 ax.set_ylim([0, 100])
 plt.yticks([10,20,30,40,50,60,70,80,90,100])
 # plt.yscale('log')

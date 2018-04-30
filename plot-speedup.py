@@ -41,10 +41,10 @@ x = map (lambda e: int(e), sample_pts)
 # plt.xticks()
 # plt.xticks([1,2,4,8,12,16,20,24,28,32])
 # plt.xscale('log', basex=2)
-plt.xlabel('Number of Threads')
+plt.xlabel('Number of cores')
 
 #### y-axis
-plt.ylabel('Speedup Factor')
+plt.ylabel('Speedup factor')
 # plt.yscale('log')
 
 # leave some space
